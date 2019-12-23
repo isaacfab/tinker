@@ -1,9 +1,9 @@
-#############################################
+##################################################################################
 # Building Anamations of Strange Attractors
 # by: Isaac J. Faber
 # some source code used from: https://codingclubuc3m.rbind.io/post/2019-10-15/
 # make sure to set your working directory 
-#############################################
+##################################################################################
 
 library(tidyverse)
 library(animation)
@@ -39,28 +39,29 @@ for(i in 1:n){
   pb$tick()
 }
 
-ggplot(clifford_data[1:100,], aes(x = x, y = y)) +
-  geom_point() +
+ggplot() +
+  geom_point(data = clifford_data, aes(x = x, y = y),shape=46, alpha=0.05, color = "#2ca25f") +
+  geom_point(data = clifford_data[1:10000,], aes(x = x, y = y) ,shape=46, alpha=.3,color ="#f03b20") +
   coord_equal() +
   theme_void() -> plot
 
 ggsave("clifford_1.png", plot, height = 5, width = 5, units = 'in')
 
-ani.options(interval = 0.05, 
+ani.options(interval = 0.25, 
             nmax = 300,
-            ani.width = 480,
-            ani.height = 480)
+            ani.width = 720,
+            ani.height = 720)
 
 saveVideo({
-  num_iters <- 10
+  num_iters <- 100
   for(i in 1:num_iters){
-    clifford_data_subset <- clifford_data[1:(100000*i),]
     #write the plot with a subset
-    p<-ggplot(clifford_data_subset, aes(x = x, y = y)) +
-      geom_point(shape=46,alpha=0.01) +
-      coord_equal() +
-      theme_void() 
+    p<-ggplot() +
+          geom_point(data = clifford_data[1:(10000*i),], aes(x = x, y = y),shape=46, alpha=0.05, color = "#2ca25f") +
+          geom_point(data = clifford_data[(10000*(i-1)):(10000*i),], aes(x = x, y = y) ,shape=46, alpha =.3, color ="#f03b20") +
+          coord_equal() +
+          theme_void() 
     print(p)
   }#close the for loop
   
-}, video.name = "clifford_1.mp4", other.opts = "-pix_fmt yuv420p -b 300k")
+}, video.name = "clifford_1.mp4", other.opts = "-pix_fmt yuv420p -b 1000k")
