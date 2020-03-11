@@ -16,7 +16,7 @@ library(tidyverse)
 covid_data_current <- get_nCov2019()
 
 #just the global level data
-covid_data_current <- covid_data_current %>% 
+covid_data_current <- covid_data_currentv$global %>% 
   filter(deadRate > 0) %>% 
   mutate(deadRate = as.numeric(deadRate)) %>% 
   arrange(desc(deadRate)) 
