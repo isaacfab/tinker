@@ -15,6 +15,13 @@ library(tidyverse)
 #get the latest data which returns a complex list
 covid_data_current <- get_nCov2019()
 
+covid_data_today <- covid_data_current$areaTree$today %>% 
+  mutate(name = covid_data_current$areaTree$name) %>% 
+  filter(confirm > 0)
+
+#data updates from today
+covid_data_today
+
 #just the global level data
 covid_data_current <- covid_data_currentv$global %>% 
   filter(deadRate > 0) %>% 
