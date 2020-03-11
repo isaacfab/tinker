@@ -81,3 +81,91 @@ p2
 library(cowplot)
 
 plot_grid(p2, p1, labels = c('', ''))
+
+##########################################################################################################################################################
+# Basic COVID-19 data analysis using scraped data
+# by Isaac J. Faber
+# Note: This data is scraped from https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide
+##########################################################################################################################################################
+
+rm(list=ls())
+
+file_path = paste0('https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-',Sys.Date(),'.xls')
+
+download.file(file_path , '~/covid.xls')
+
+#clean some things up
+covid_data <- readxl::read_xls('~/covid.xls') %>% 
+  group_by(DateRep, CountryExp) %>% 
+  summarize(ConfCases = sum(NewConfCases),
+            Deaths = sum(NewDeaths)) %>% 
+  arrange(desc(DateRep))
+
+covid_data_global <- covid_data %>% 
+ group_by(DateRep) %>% 
+  summarize(ConfCases = sum(ConfCases),
+            Deaths = sum(Deaths)) %>% 
+  mutate(CumsumDeaths = cumsum(Deaths)) %>% 
+  mutate(CumsumConfCases = cumsum(ConfCases))
+
+covid_data_country <- covid_data %>% 
+  group_by(CountryExp) %>% 
+  summarize(ConfCases = sum(ConfCases),
+            Deaths = sum(Deaths))
+
+library(maps)
+
+world_data <- map_data("world") %>% filter(region != 'Antarctica')
+
+covid_data_country$in_world_data <- covid_data_country$CountryExp %in% world_data$region
+
+t <- covid_data_country[covid_data_country$in_world_data == FALSE,]
+
+covid_data_country <- covid_data_country %>% 
+  mutate(CountryExp = ifelse(CountryExp == "United States of America","USA",
+                             ifelse(CountryExp == "United Kingdom", "UK", CountryExp)))
+
+world_data <- world_data %>% 
+  left_join(covid_data_country, by = c("region" = "CountryExp"))
+
+
+ggplot(world_data, aes(x = long, y = lat, group=group, fill = Deaths)) +
+  geom_polygon(colour="#bdbdbd") +
+  xlab("") +
+  ylab("") +
+  theme_bw() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+#without China
+
+world_data_no_china <- world_data %>% 
+  filter(region != "China")
+
+ggplot(world_data_no_china, aes(x = long, y = lat, group=group, fill = Deaths)) +
+  geom_polygon(colour="#bdbdbd") +
+  xlab("") +
+  ylab("") +
+  theme_bw() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+covid_data_deaths <- covid_data[covid_data$Deaths > 1 ,]
+
+p1 <- ggplot(covid_data_deaths, aes(x=DateRep,y=Deaths, fill = CountryExp)) +
+  geom_area() + 
+  ggtitle('Confirmed Global Deaths From COVID 19', subtitle = 'running total by countries with > 5') +
+  ylab("") +
+  xlab("") +
+  theme_bw() +
+  theme(legend.title = element_blank())
+
+p1
