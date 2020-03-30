@@ -1,6 +1,6 @@
 ######################################################################################
 # Basic COVID-19 data analysis using the R package available on Github
-# by Isaac J. Faber
+# by Isaac J Faber
 # Note: This package is mostly focused on China but there is 
 # some global data available as well but not at the same resolution.
 # R Package: https://github.com/GuangchuangYu/nCov2019
