@@ -32,7 +32,7 @@ prices %>%
   geom_line(size = 1) +
   scale_color_brewer(palette = 'Set1') +
   scale_y_continuous(breaks = c(.785, 1, 1.145, 1.362, 1.730), labels = c('$0.78','$1','$1.15','$1.36','$1.73')) +
-  geom_hline(yintercept = c(.785, 1, 1.145, 1.362, 1.730), alpha = .4) +
+  geom_hline(yintercept = c(.785, 1, 1.145, 1.362, 1.730), alpha = c(.4,1,.4,.4,.4)) +
   scale_x_date(limits = as.Date(c('2020-02-03','2020-03-27')), 
                expand = c(0, 0))  +
     labs(title = "Remote Work Collaboration Companies", 
